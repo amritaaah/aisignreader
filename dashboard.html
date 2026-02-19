@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<div class="header">
+    <span>Smart Multilingual Signboard Reader</span>
+    
+</div>
+
+<div class="dashboard">
+    <h3 class="dash-title">Dashboard</h3>
+
+<div class="section">
+    <h4>Scan Signboard</h4>
+
+    <form action="/upload" method="POST" enctype="multipart/form-data">
+
+        <label class="custom-btn">
+            Select or Capture Image
+            <input type="file" name="image" accept="image/*" capture="environment" hidden required>
+        </label>
+
+        <br><br>
+
+        <button type="submit" class="custom-btn full-btn">
+            Process Image
+        </button>
+
+    </form>
+</div>
+
+<!-- Uploaded Image Section -->
+{% if image_file %}
+<div class="section">
+    <h4>Uploaded Image</h4>
+    <img id="uploaded-img" src="{{ url_for('static', filename=image_file) }}" class="uploaded-img zoomable">
+</div>
+
+<!-- Zoom overlay -->
+<div id="zoom-overlay" class="zoom-overlay" style="display:none;">
+    <img id="zoomed-img" src="" class="zoomed-img">
+</div>
+{% endif %}
+
+
+
+<div class="section">
+    <h4>Recognized Text</h4>
+
+    <div class="output-box">
+        {{ text if text else "Recognized text will appear here..." }}
+    </div>
+</div>
+
+
+<div class="section">
+    <h4>Audio Output</h4>
+
+    {% if text %}
+    <form action="/read" method="POST">
+        <input type="hidden" name="text" value="{{ text }}">
+        <input type="hidden" name="image_file" value="{{ image_file }}">
+        <button type="submit" class="custom-btn">
+            Read Aloud (Malayalam)
+        </button>
+    </form>
+    {% else %}
+        <p>No text available to read.</p>
+    {% endif %}
+
+    {% if audio_file %}
+        <br>
+        <audio controls autoplay>
+            <source src="{{ url_for('static', filename=audio_file) }}" type="audio/mpeg">
+        </audio>
+    {% endif %}
+</div>
+
+<script>
+const uploadedImg = document.getElementById('uploaded-img');
+const zoomOverlay = document.getElementById('zoom-overlay');
+const zoomedImg = document.getElementById('zoomed-img');
+
+if (uploadedImg) {
+    uploadedImg.addEventListener('click', function() {
+        zoomedImg.src = uploadedImg.src;
+        zoomOverlay.style.display = 'flex';
+    });
+
+    zoomOverlay.addEventListener('click', function() {
+        zoomOverlay.style.display = 'none';
+    });
+}
+</script>
+
+</div>
+
+
+</body>
+</html>
